@@ -58,16 +58,13 @@ pipeline {
             }
         }
 
-        stage("Docker Build & Push") {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    script {
-                        def imageTag = "${RELEASE}-${BUILD_NUMBER}"
-                        def docker_image
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
-                            docker_image = docker.build("${IMAGE_NAME}")
-                            docker_image.push("${imageTag}")
-                            docker_image.push('latest')
+       stage("Docker Build & Push"){
+             steps{
+                 script{
+                    withDockerRegistry(credentialsId: 'docker-hub', toolName: 'docker'){   
+                        sh "docker build -t streamlit ."
+                        sh "docker tag streamlit kadamnikhil26/streamlit:latest "
+                        sh "docker push kadamnikhil26/streamlit:latest 
                         }
                     }
                 }
