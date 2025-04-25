@@ -10,10 +10,7 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "streamlit"
         RELEASE = "1.0.0"
-        DOCKER_USER = "kadamnikhil26"
-        DOCKER_PASS = '11c225674e707df2b9a347cedae575e993'  // Better to use Jenkins Credentials here
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
-        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        IMAGE_NAME = "kadamnikhil26/${APP_NAME}"
     }
 
     stages {
@@ -60,39 +57,47 @@ pipeline {
                 sh 'trivy fs . > trivyfs.txt'
             }
         }
-       stage("Docker Build & Push"){
-             steps {
-                 script {
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image = docker.build "${IMAGE_NAME}"
-                     }
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image.push("${IMAGE_TAG}")
-                         docker_image.push('latest')
-                  }
-               }
-           }
-           stage ( 'Cleanup Artifacts') {
-               steps {
-                   script {
-                       sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                        sh "docker rmi ${IMAGE_NAME}:latest"
+
+        stage("Docker Build & Push") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        def imageTag = "${RELEASE}-${BUILD_NUMBER}"
+                        def docker_image
+                        docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
+                            docker_image = docker.build("${IMAGE_NAME}")
+                            docker_image.push("${imageTag}")
+                            docker_image.push('latest')
                         }
-                   }
-             }
-           post {
-               always {
-                   emailext attachLog: true,
-                       subject: "'${currentBuild.result}'",
-                       body: "Project: ${env.JOB_NAME}<br>" +
-                       "Build Number: ${env.Build_NUMBER{<br/>" +
-                       "URL: ${env.BUILD_URL}<br>",
-                       to: 'kadamnikhil420@gmail.com',
-                       attachmentsPattern: 'trivyfs.txt'
-                      }
-                   }
-              }           
-                       
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup Artifacts') {
+            steps {
+                script {
+                    def imageTag = "${RELEASE}-${BUILD_NUMBER}"
+                    sh "docker rmi ${IMAGE_NAME}:${imageTag} || true"
+                    sh "docker rmi ${IMAGE_NAME}:latest || true"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            emailext(
+                attachLog: true,
+                subject: "'${currentBuild.result}'",
+                body: """
+                    Project: ${env.JOB_NAME}<br/>
+                    Build Number: ${env.BUILD_NUMBER}<br/>
+                    URL: ${env.BUILD_URL}<br/>
+                """,
+                to: 'kadamnikhil420@gmail.com',
+                attachmentsPattern: 'trivyfs.txt'
+            )
         }
     }
 }
