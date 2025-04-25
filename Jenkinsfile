@@ -27,7 +27,7 @@ pipeline {
         }
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('Sonarqube-Server') {
+                withSonarqubeEnv('Sonarqube-Server') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=streamlit \
                     -Dsonar.projectKey=streamlit'''
                 }
