@@ -11,7 +11,7 @@ pipeline {
         APP_NAME = "streamlit"
         RELEASE = "1.0.0"
         DOCKER_USER = "kadamnikhil26"
-        DOCKER_PASS = 'Nikhil26@'  // Better to use Jenkins Credentials here
+        DOCKER_PASS = '11c225674e707df2b9a347cedae575e993'  // Better to use Jenkins Credentials here
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -80,6 +80,18 @@ pipeline {
                         }
                    }
              }
+           post {
+               always {
+                   emailext attachLog: true,
+                       subject: "'${currentBuild.result}'",
+                       body: "Project: ${env.JOB_NAME}<br>" +
+                       "Build Number: ${env.Build_NUMBER{<br/>" +
+                       "URL: ${env.BUILD_URL}<br>",
+                       to: 'kadamnikhil420@gmail.com',
+                       attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+                      }
+                   }
+              }           
                        
         }
     }
