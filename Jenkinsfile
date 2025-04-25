@@ -28,7 +28,7 @@ pipeline {
 
         stage('Sonarqube Analysis') {
             steps {
-                withSonarQubeEnv('Sonarqube-Server') {
+                withSonarQubeEnv('sonarqube-server') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner \
                     -Dsonar.projectName=streamlit \
                     -Dsonar.projectKey=streamlit'''
@@ -103,7 +103,7 @@ pipeline {
                 body: "Project: ${env.JOB_NAME}<br/>" +
                       "Build Number: ${env.BUILD_NUMBER}<br/>" +
                       "URL: ${env.BUILD_URL}<br/>",
-                to: 'ashfaque.s510@gmail.com',
+                to: 'kadamnikhil420@gmail.com',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
         }
     }
