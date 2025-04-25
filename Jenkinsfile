@@ -25,7 +25,7 @@ pipeline {
 
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/Ashfaque-9x/a-swiggy-clone.git'
+                git branch: 'master', url: 'https://github.com/Nikh2603/streamlit_application.git'
             }
         }
 
