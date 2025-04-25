@@ -12,7 +12,7 @@ pipeline {
         DOCKER_PASS = 'docker-hub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	JENKINS_API_TOKEN = credentials("Jenkins")
+	Jenkins = credentials("Jenkins")
     }
     stages {
         stage('clean workspace') {
@@ -27,8 +27,8 @@ pipeline {
         }
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Reddit-Clone-CI \
+                withSonarQubeEnv('Sonarqube-Server') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=streamlit \
                     -Dsonar.projectKey=streamlit'''
                 }
             }
